@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "review-evolve-local",
+  "description": "자기강화 메타-리뷰 시스템",
+  "owner": {
+    "name": "박보성"
+  },
+  "plugins": [
+    {
+      "name": "review-evolve",
+      "description": "Claude + Codex CLI 교차검증으로 리뷰 패턴을 축적하고 다음 리뷰에 자동 주입한다.",
+      "version": "0.1.0",
+      "source": "./"
+    }
+  ],
+  "version": "0.1.0"
+}

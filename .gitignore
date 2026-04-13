@@ -1,0 +1,5 @@
+node_modules/
+.review-evolve/captures/
+.review-evolve/claude-review/
+.omc/
+.DS_Store

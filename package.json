@@ -1,0 +1,10 @@
+{
+  "name": "review-evolve",
+  "version": "0.1.0",
+  "description": "자기강화 메타-리뷰 시스템 - Claude + Codex CLI 교차검증 기반",
+  "scripts": {
+    "review": "./scripts/codex-review.sh"
+  },
+  "author": "박보성",
+  "license": "MIT"
+}

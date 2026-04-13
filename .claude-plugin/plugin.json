@@ -1,0 +1,9 @@
+{
+  "name": "review-evolve",
+  "description": "자기강화 메타-리뷰 시스템. Claude + Codex CLI 교차검증으로 리뷰 패턴을 축적하고 다음 리뷰에 자동 주입한다.",
+  "version": "0.1.0",
+  "author": { "name": "박보성" },
+  "license": "MIT",
+  "keywords": ["code-review", "harness-engineering", "self-improving", "cross-validation"],
+  "skills": "./skills/"
+}
