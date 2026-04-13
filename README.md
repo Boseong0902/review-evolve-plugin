@@ -109,7 +109,7 @@ review-evolve/
 └── docs/
     ├── design-decisions.md        # 설계 결정 기록 (ADR)
     ├── architecture.md            # 아키텍처 상세
-    ├── roadmap.md                 # Phase 3-5 로드맵
+    ├── improvement.md                 # Phase 3-5 로드맵
     └── example.md                 # 포트폴리오 설계 문서
 ```
 
