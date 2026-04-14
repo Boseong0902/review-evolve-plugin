@@ -85,9 +85,10 @@ Claude Code에서 `/review-evolve` 스킬을 실행하면 인터랙티브 리뷰
 다음 코드 리뷰 시 PreToolUse 훅이 자동으로 축적된 패턴 중 관련된 것만 선별하여 컨텍스트에 주입합니다.
 
 - review 관련 에이전트(code-reviewer)에만 발동
-- 현재 diff와 관련된 패턴만 필터링
-- 토큰 예산 관리 (5,000토큰 초과 시 high/core만 주입)
-- pending 패턴은 주입하지 않음
+- 신형 구조(`.review-evolve/knowledge/`): diff와 관련된 카테고리 파일만 로드 → high/core 패턴만 포함
+- 구형 구조(`.review-evolve/review-knowledge.md`): 관련 패턴 필터링 후 주입 (하위 호환)
+- 토큰 예산 관리 (5,000토큰 초과 시 high/core만, 10,000 초과 시 core만 주입)
+- pending/medium 패턴은 주입하지 않음 (index.md에만 기록)
 
 ## 프로젝트 구조
 
@@ -101,15 +102,16 @@ review-evolve/
 │   └── scripts/
 │       ├── lib/stdin.mjs          # stdin JSON 파싱 유틸리티
 │       ├── capture-review.mjs     # 리뷰 결과 자동 캡처
-│       └── inject-patterns.mjs    # 패턴 선별 주입
+│       └── inject-patterns.mjs    # 패턴 선별 주입 (신형/구형 knowledge 구조 모두 지원)
 ├── scripts/
 │   └── codex-review.sh            # Codex CLI 리뷰 래퍼
 ├── templates/
-│   └── review-knowledge.md        # 지식 베이스 템플릿
+│   ├── review-knowledge.md        # 지식 베이스 템플릿 (Legacy / 단일 파일 모드)
+│   └── index.md                   # 신형 knowledge index 템플릿 (카테고리 구조)
 └── docs/
     ├── design-decisions.md        # 설계 결정 기록 (ADR)
     ├── architecture.md            # 아키텍처 상세
-    ├── improvement.md                 # Phase 3-5 로드맵
+    ├── improvement.md             # 개선 계획
     └── example.md                 # 포트폴리오 설계 문서
 ```
 
@@ -121,11 +123,14 @@ review-evolve/
 pending → medium → high → core
 ```
 
-| 현재 | 조건 | 변경 후 |
-|------|------|---------|
-| pending | 사용자 유효 승인 | medium |
-| medium | 2회+ 재발견 또는 양쪽 모두 발견 | high |
-| high | 5회+ 발견 | core |
+| 현재 | 조건 | 변경 후 | 저장 위치 |
+|------|------|---------|---------|
+| pending | 사용자 유효 승인 | medium | `knowledge/index.md` ## Medium (1줄) |
+| medium | 2회 재발견 | high | 카테고리 파일 (전체 포맷) |
+| high | 양쪽 모두 발견 OR 3회+ 재발견 | core | 카테고리 파일 Core 섹션 |
+| core | 5회+ 발견 | — | 최고 레벨 유지 |
+
+> **신형 구조**: high/core 패턴은 `.review-evolve/knowledge/{category}.md`에 저장되어 주입 시 고신뢰 패턴만 로드됩니다. pending/medium은 `knowledge/index.md`에 1줄로만 기록됩니다.
 
 ## 실행 예시
 <img width="716" height="292" alt="Image" src="https://github.com/user-attachments/assets/e6b8eb52-cc15-4719-be1f-6afc3267ac54" />
