@@ -127,6 +127,14 @@ pending → medium → high → core
 | medium | 2회+ 재발견 또는 양쪽 모두 발견 | high |
 | high | 5회+ 발견 | core |
 
+## 실행 예시
+<img width="716" height="292" alt="Image" src="https://github.com/user-attachments/assets/e6b8eb52-cc15-4719-be1f-6afc3267ac54" />
+<img width="737" height="826" alt="Image" src="https://github.com/user-attachments/assets/56d8db63-eeca-47a6-999d-2f6b86c09a20" />
+<img width="840" height="736" alt="Image" src="https://github.com/user-attachments/assets/26f014a1-e4ec-4f4a-8dd2-db595efca6ed" />
+<img width="695" height="338" alt="Image" src="https://github.com/user-attachments/assets/a4d246ab-fa50-47ea-a07d-68ec4afa9087" />
+<img width="792" height="381" alt="Image" src="https://github.com/user-attachments/assets/82667850-f9a2-4c4a-9d62-c97adb564ef7" />
+<img width="637" height="556" alt="Image" src="https://github.com/user-attachments/assets/9ca6b4e5-e186-4b3d-b3fb-c8ef4e5f3844" />
+
 ## 라이센스
 
 MIT
