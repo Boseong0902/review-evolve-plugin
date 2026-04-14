@@ -30,7 +30,7 @@
 
 ---
 
-## 2. 신뢰도 기준 조정 + 카테고리 반영 기준
+## 2. 신뢰도 기준 조정 + 카테고리 반영 기준 ✅ 구현 완료
 
 ### 현재 문제
 모든 확인된 패턴(pending 포함)이 하나의 파일에 섞여 있어서, 검증된 패턴과 미검증 패턴의 구분이 구조적으로 드러나지 않습니다.
@@ -49,6 +49,11 @@ high 승격 기준을 낮추고, high부터 카테고리 파일에 정식 반영
 - `index.md`는 가볍게 유지 — pending/medium은 한 줄 설명만
 - 카테고리 파일은 검증된 패턴만 — high/core만 들어가니 신뢰도 높음
 - PreToolUse 훅 입장에서 효율적 — index.md 읽고 → 관련 카테고리만 로드 → 그 안에는 high/core만
+
+### 구현 내역
+- `hooks/scripts/inject-patterns.mjs`: `loadKnowledgeBase()` 추가 — 신형(`knowledge/index.md` + 카테고리 파일) / 구형(`review-knowledge.md`) 자동 분기
+- `skills/review-evolve/SKILL.md`: Step 5 저장 위치 결정 로직, Step 6 승격 규칙 테이블 업데이트
+- `templates/index.md`: 신형 knowledge index 템플릿 신규 생성
 
 ---
 

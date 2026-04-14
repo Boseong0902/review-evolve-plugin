@@ -1,5 +1,6 @@
-# Review Knowledge Base
+# Review Knowledge Base (Legacy / 단일 파일 모드)
 > 이 파일은 review-evolve 플러그인이 자동으로 관리합니다.
+> 새 구조: .review-evolve/knowledge/ 디렉토리 (index.md + 카테고리 파일)
 > 수동 편집 가능하나, 포맷을 유지해주세요.
 > 마지막 업데이트: -
 

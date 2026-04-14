@@ -127,6 +127,116 @@ function formatPatterns(patterns) {
     .join('\n\n');
 }
 
+/**
+ * index.md의 카테고리 목록 테이블을 파싱하여 { name, file, description }[] 반환
+ */
+function parseCategoryTable(indexContent) {
+  const categories = [];
+  const lines = indexContent.split('\n');
+  let inTable = false;
+
+  for (const line of lines) {
+    if (line.includes('## 카테고리 목록')) {
+      inTable = true;
+      continue;
+    }
+    if (inTable && line.startsWith('##')) {
+      break;
+    }
+    if (!inTable) continue;
+
+    // 헤더/구분선 건너뜀
+    if (line.trim().startsWith('| 카테고리') || line.trim().startsWith('|---')) continue;
+
+    const tableMatch = line.trim().match(/^\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/);
+    if (tableMatch) {
+      categories.push({
+        name: tableMatch[1].trim(),
+        file: tableMatch[2].trim(),
+        description: tableMatch[3].trim(),
+      });
+    }
+  }
+  return categories;
+}
+
+/**
+ * diff 변경 파일 목록과 카테고리 description을 비교하여 관련 카테고리 선택
+ * 관련 카테고리가 없으면 전체 반환
+ */
+function selectRelevantCategories(categories, changedFiles) {
+  if (changedFiles.length === 0) return categories;
+
+  const extensions = new Set(
+    changedFiles.map((f) => f.split('.').pop()?.toLowerCase()).filter(Boolean)
+  );
+  const fileNames = changedFiles.map((f) => f.toLowerCase());
+
+  const relevant = categories.filter((cat) => {
+    const desc = cat.description.toLowerCase();
+    const catName = cat.name.toLowerCase();
+
+    for (const ext of extensions) {
+      if (desc.includes(ext) || catName.includes(ext)) return true;
+    }
+    for (const filePath of fileNames) {
+      const parts = filePath.split('/');
+      const baseName = parts[parts.length - 1].replace(/\.[^.]+$/, '');
+      if (desc.includes(baseName) || catName.includes(baseName)) return true;
+      for (const part of parts) {
+        if (desc.includes(part) || catName.includes(part)) return true;
+      }
+    }
+    return false;
+  });
+
+  return relevant.length > 0 ? relevant : categories;
+}
+
+/**
+ * 신형/구형 knowledge 구조를 판별하여 패턴 배열을 반환
+ * 신형: .review-evolve/knowledge/index.md 존재
+ * 구형: .review-evolve/review-knowledge.md (또는 루트)
+ */
+function loadKnowledgeBase(cwd, changedFiles) {
+  const newIndexPath = join(cwd, '.review-evolve', 'knowledge', 'index.md');
+
+  if (existsSync(newIndexPath)) {
+    // 신형 구조
+    const indexContent = readFileSync(newIndexPath, 'utf8');
+    const categories = parseCategoryTable(indexContent);
+
+    if (categories.length === 0) return [];
+
+    const relevantCategories = selectRelevantCategories(categories, changedFiles);
+    const allPatterns = [];
+
+    for (const cat of relevantCategories) {
+      const catPath = join(cwd, '.review-evolve', 'knowledge', cat.file);
+      if (!existsSync(catPath)) continue;
+      const catContent = readFileSync(catPath, 'utf8');
+      const patterns = parseKnowledgeBase(catContent);
+      allPatterns.push(...patterns);
+    }
+
+    return allPatterns;
+  }
+
+  // 구형 구조
+  const legacyPaths = [
+    join(cwd, '.review-evolve', 'review-knowledge.md'),
+    join(cwd, 'review-knowledge.md'),
+  ];
+
+  for (const p of legacyPaths) {
+    if (existsSync(p)) {
+      return parseKnowledgeBase(readFileSync(p, 'utf8'));
+    }
+  }
+
+  return [];
+}
+
 async function main() {
   const raw = await readStdin(3000);
   const context = parseContext(raw);
@@ -178,36 +288,24 @@ async function main() {
   );
 
   // --- [2] 패턴 있으면: 축적된 패턴 주입 ---
-  const knowledgePaths = [
-    join(cwd, '.review-evolve', 'review-knowledge.md'),
-    join(cwd, 'review-knowledge.md'),
-  ];
-
-  let knowledgeContent = '';
-  for (const p of knowledgePaths) {
-    if (existsSync(p)) {
-      knowledgeContent = readFileSync(p, 'utf8');
-      break;
-    }
+  // changedFiles를 먼저 구해서 loadKnowledgeBase에 전달
+  let changedFiles = [];
+  try {
+    const filesRaw = execSync('git diff HEAD --name-only', {
+      cwd,
+      encoding: 'utf8',
+      timeout: 5000,
+    });
+    changedFiles = filesRaw.trim().split('\n').filter(Boolean);
+  } catch {
+    // git 실패 시 빈 배열로 전체 패턴 사용
   }
 
-  if (knowledgeContent) {
-    let patterns = parseKnowledgeBase(knowledgeContent);
+  {
+    let patterns = loadKnowledgeBase(cwd, changedFiles);
     patterns = patterns.filter((p) => p.confidence !== 'pending');
 
     if (patterns.length > 0) {
-      let changedFiles = [];
-      try {
-        const filesRaw = execSync('git diff HEAD --name-only', {
-          cwd,
-          encoding: 'utf8',
-          timeout: 5000,
-        });
-        changedFiles = filesRaw.trim().split('\n').filter(Boolean);
-      } catch {
-        // git 실패 시 전체 패턴 사용
-      }
-
       patterns = filterByRelevance(patterns, changedFiles);
       patterns.sort(
         (a, b) =>
