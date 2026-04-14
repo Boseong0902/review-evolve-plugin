@@ -140,6 +140,9 @@ pending → medium → high → core
 <img width="792" height="381" alt="Image" src="https://github.com/user-attachments/assets/82667850-f9a2-4c4a-9d62-c97adb564ef7" />
 <img width="637" height="556" alt="Image" src="https://github.com/user-attachments/assets/9ca6b4e5-e186-4b3d-b3fb-c8ef4e5f3844" />
 
+### 실행 결과 md파일 확인
+https://github.com/Boseong0902/review-evolve-plugin/blob/main/docs/ex.review-knowledge.md
+
 ## 라이센스
 
 MIT
